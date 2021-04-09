@@ -1,0 +1,21 @@
+spring:
+  r2dbc:
+    url: r2dbc:pool:postgres://localhost:5432/webflux-security
+    username: postgres
+    password: postgres
+  jackson:
+    default-property-inclusion: non-null
+    visibility:
+      field: any
+#    property-naming-strategy: SNAKE_CASE
+server:
+  port: 9000
+jwt:
+  password:
+    encoder:
+      secret: oZr417KU7ipPoCCGY0-cPcGu0PpT1_aG9o-BD1KcnN3BpZPrLcNKgcF9QXXJwrY50Whd7Ij51t45oD0ctn-Vo032uFoMtnNzvzpOFq
+      iteration: 33
+      keylength: 256
+  secret: AMDXGbO7gGwf3hoFPpm6GwQvFrqoCsn2 #This Secret For JWT HS256 Signature Algorithm MUST Have 256 bits KeySize
+  expiration: 28800 # token expiration in seconds
+
