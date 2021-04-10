@@ -1,3 +1,5 @@
+server:
+  port: 9000
 spring:
   r2dbc:
     url: r2dbc:pool:postgres://localhost:5432/webflux-security
@@ -7,9 +9,8 @@ spring:
     default-property-inclusion: non-null
     visibility:
       field: any
-#    property-naming-strategy: SNAKE_CASE
-server:
-  port: 9000
+app:
+  public_routes: /login,/public/**,/version,/status,/actuator/**
 jwt:
   password:
     encoder:

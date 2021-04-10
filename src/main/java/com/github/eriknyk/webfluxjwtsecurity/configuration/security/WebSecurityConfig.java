@@ -31,28 +31,28 @@ public class WebSecurityConfig {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    /**
-     * Those endpoints that do not require jwt token authentication should be pass.
-     */
-    private static final String[] AUTH_WHITELIST = {
-            "/status",
-            "/login",
-            "/logout",
-            "/version",
-            "/actuator/**",
-            "/public/**"};
+    @Value("${app.public_routes}")
+    private String[] publicRoutes;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, AuthenticationManager authManager) {
         return http
+                .authorizeExchange()
+                    .pathMatchers(HttpMethod.OPTIONS)
+                        .permitAll()
+                    .pathMatchers(publicRoutes)
+                        .permitAll()
+                    .pathMatchers( "/favicon.ico")
+                        .permitAll()
+                    .anyExchange()
+                        .authenticated()
+                    .and()
                 .csrf()
                     .disable()
-                    .headers()
-                    .frameOptions().disable()
-                    .cache().disable()
-                .and()
-                    .formLogin().disable()
-                    .httpBasic().disable()
+                .httpBasic()
+                    .disable()
+                .formLogin()
+                    .disable()
                 .exceptionHandling()
                     .authenticationEntryPoint((swe, e) -> {
                         logger.info("[1] Authentication error: Unauthorized[401]: " + e.getMessage());
@@ -65,16 +65,9 @@ public class WebSecurityConfig {
                         return Mono.fromRunnable(() -> swe.getResponse().setStatusCode(HttpStatus.FORBIDDEN));
                     })
                 .and()
-                    .addFilterAt(bearerAuthenticationFilter(authManager), SecurityWebFiltersOrder.AUTHENTICATION)
-                    .addFilterAt(cookieAuthenticationFilter(authManager), SecurityWebFiltersOrder.AUTHENTICATION)
-                    .authorizeExchange()
-                    .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                    .pathMatchers(AUTH_WHITELIST).permitAll()
-                    .pathMatchers( "/favicon.ico").permitAll()
-                    .anyExchange()
-                    .authenticated()
-                .and()
-                    .build();
+                .addFilterAt(bearerAuthenticationFilter(authManager), SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterAt(cookieAuthenticationFilter(authManager), SecurityWebFiltersOrder.AUTHENTICATION)
+                .build();
     }
 
     /**
